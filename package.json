@@ -13,7 +13,8 @@
     "dev:vite": "vite",
     "dev:electron": "node scripts/launch-electron.js",
     "build": "vite build",
-    "build:electron": "npm run build && electron-builder",
+    "clean:dist": "node -e \"const fs=require('fs');const p='dist-electron';if(fs.existsSync(p))fs.readdirSync(p).filter(f=>f.endsWith('.exe')||f.endsWith('.blockmap')).forEach(f=>fs.unlinkSync(p+'/'+f))\"",
+    "build:electron": "npm run clean:dist && npm run build && electron-builder",
     "preview": "vite preview"
   },
   "dependencies": {
