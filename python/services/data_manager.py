@@ -14,6 +14,7 @@ _df_original: Optional[pd.DataFrame] = None  # Copia del archivo cargado (para r
 _history: list[dict] = []                    # [{df, descripcion}, ...]
 _conn: Optional[duckdb.DuckDBPyConnection] = None
 _metadata: dict = {}
+_filepath: Optional[str] = None             # Ruta del archivo cargado actualmente
 
 # Configuración de análisis
 _split_variable: Optional[str] = None       # SPLIT FILE
@@ -64,8 +65,12 @@ def _get_column_info(df: pd.DataFrame) -> list[dict]:
 
 # ─── Carga de archivos ────────────────────────────────────────────────────────
 
+def get_filepath() -> Optional[str]:
+    return _filepath
+
+
 def load_file(filepath: str) -> dict:
-    global _df, _df_original, _metadata, _history, _split_variable, _weight_variable
+    global _df, _df_original, _metadata, _history, _split_variable, _weight_variable, _filepath
 
     path = Path(filepath)
     ext = path.suffix.lower()
@@ -87,6 +92,7 @@ def load_file(filepath: str) -> dict:
     _history = []
     _split_variable = None
     _weight_variable = None
+    _filepath = filepath
     _reset_duckdb()
 
     _metadata = _build_metadata(_df, path.name)
@@ -213,3 +219,30 @@ def query(sql: str) -> pd.DataFrame:
 
 def is_loaded() -> bool:
     return _df is not None
+
+
+def save_file(ruta_destino: Optional[str] = None) -> str:
+    """Guarda el dataset activo en disco. Si ruta_destino es None usa la ruta original."""
+    if _df is None:
+        raise RuntimeError("No hay dataset cargado")
+
+    destino = ruta_destino or _filepath
+    if not destino:
+        raise RuntimeError("No se conoce la ruta del archivo")
+
+    path = Path(destino)
+    ext = path.suffix.lower()
+
+    if ext == ".csv":
+        _df.to_csv(destino, index=False)
+    elif ext in (".xlsx", ".xls"):
+        _df.to_excel(destino, index=False)
+    elif ext == ".sav":
+        import pyreadstat
+        pyreadstat.write_sav(_df, destino)
+    else:
+        # Formato no soportado para escritura: guardar como CSV junto al original
+        destino = str(path.with_suffix(".csv"))
+        _df.to_csv(destino, index=False)
+
+    return destino

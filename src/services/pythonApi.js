@@ -45,6 +45,9 @@ export const getMetadata = () => request('GET', '/data/metadata')
 export const getPreview = (n = 100) =>
   request('POST', '/data/preview', { n })
 
+export const guardarDatos = (ruta_destino = null) =>
+  request('POST', '/data/guardar', { ruta_destino })
+
 // ─── Descriptivos ────────────────────────────────────────────────────────────
 export const calcularDescriptivos = (variables, incluirFrecuencias = false) =>
   request('POST', '/descriptivos/', {

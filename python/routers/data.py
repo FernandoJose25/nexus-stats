@@ -30,6 +30,10 @@ class EliminarFilasRequest(BaseModel):
     filas: list[int]   # Índices 0-based de las filas a eliminar
 
 
+class GuardarRequest(BaseModel):
+    ruta_destino: Optional[str] = None  # None = sobreescribir el archivo original
+
+
 @router.post("/cargar")
 def cargar_archivo(req: CargarArchivoRequest):
     """Carga un archivo de datos (CSV, Excel, SPSS, SAS, Stata) en memoria."""
@@ -114,6 +118,18 @@ def agregar_fila(req: AgregarFilaRequest):
     df2 = pd.concat([df, pd.DataFrame([nueva_fila])], ignore_index=True)
     data_manager.apply_mutation(df2, f"INSERT ROW {len(df)+1}")
     return {"ok": True, "nueva_fila": len(df), "metadata": data_manager.get_metadata()}
+
+
+@router.post("/guardar")
+def guardar(req: GuardarRequest):
+    """Guarda el dataset activo en disco (original o nueva ruta)."""
+    if not data_manager.is_loaded():
+        raise HTTPException(status_code=404, detail="No hay dataset cargado")
+    try:
+        ruta_guardada = data_manager.save_file(req.ruta_destino)
+        return {"ok": True, "ruta": ruta_guardada}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 
 @router.post("/eliminar-filas")

@@ -13,6 +13,7 @@ export const useDataStore = create((set, get) => ({
   selectedVariables: [],
   isLoading: false,
   loadError: null,
+  isDirty: false,       // hay cambios sin guardar en el editor
 
   // ── Acciones ─────────────────────────────────────────────────────────
   setMetadata: (metadata) => set({ metadata }),
@@ -22,6 +23,8 @@ export const useDataStore = create((set, get) => ({
   setLoading: (isLoading) => set({ isLoading }),
 
   setLoadError: (loadError) => set({ loadError }),
+
+  markClean: () => set({ isDirty: false }),
 
   toggleVariable: (varName) => {
     const current = get().selectedVariables
@@ -47,7 +50,7 @@ export const useDataStore = create((set, get) => ({
   updateCell: (rowIndex, colName, value) => {
     const rows = get().rows.slice()
     rows[rowIndex] = { ...rows[rowIndex], [colName]: value === '' ? null : value }
-    set({ rows })
+    set({ rows, isDirty: true })
   },
 
   clearDataset: () =>
@@ -56,6 +59,7 @@ export const useDataStore = create((set, get) => ({
       rows: [],
       selectedVariables: [],
       loadError: null,
+      isDirty: false,
     }),
 
   // Helpers derivados

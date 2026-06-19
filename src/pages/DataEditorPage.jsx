@@ -1,8 +1,8 @@
 import { useState, useRef, useCallback, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { FolderOpen, Hash, Type, Calendar, AlertCircle, SlidersHorizontal } from 'lucide-react'
+import { FolderOpen, Hash, Type, Calendar, AlertCircle, SlidersHorizontal, Save, CheckCircle2 } from 'lucide-react'
 import { useDataStore } from '../store/dataStore'
-import { cargarArchivo, getPreview } from '../services/pythonApi'
+import { cargarArchivo, getPreview, guardarDatos } from '../services/pythonApi'
 import { useT } from '../i18n/useT'
 import VariableEditor from '../components/DataEditor/VariableEditor'
 
@@ -18,6 +18,8 @@ export default function DataEditorPage() {
   const t = useT()
   const navigate = useNavigate()
   const [showVarEditor, setShowVarEditor] = useState(false)
+  const [saving, setSaving]               = useState(false)
+  const [savedOk, setSavedOk]             = useState(false)
 
   // selección tipo hoja de cálculo
   const [selected, setSelected]     = useState(null)  // { row, col } — índices en columns[]
@@ -30,9 +32,9 @@ export default function DataEditorPage() {
   const containerRef = useRef(null)
 
   const {
-    metadata, rows, isLoading, loadError,
+    metadata, rows, isLoading, loadError, isDirty,
     setMetadata, setRows, setLoading, setLoadError,
-    toggleVariable, selectedVariables, updateCell,
+    toggleVariable, selectedVariables, updateCell, markClean,
   } = useDataStore()
 
   const columns = metadata?.column_info ?? []
@@ -197,6 +199,22 @@ export default function DataEditorPage() {
     }
   }
 
+  // ── guardar ──────────────────────────────────────────────────────────────────
+
+  async function handleGuardar() {
+    setSaving(true)
+    try {
+      await guardarDatos()
+      markClean()
+      setSavedOk(true)
+      setTimeout(() => setSavedOk(false), 2500)
+    } catch (err) {
+      alert(`Error al guardar: ${err.message}`)
+    } finally {
+      setSaving(false)
+    }
+  }
+
   // ── pantalla sin datos ───────────────────────────────────────────────────────
 
   if (!metadata) {
@@ -237,6 +255,22 @@ export default function DataEditorPage() {
           </span>
         </div>
         <div className="flex items-center gap-2 flex-shrink-0">
+          {/* Botón guardar — visible solo cuando hay cambios pendientes */}
+          {isDirty && (
+            <button
+              onClick={handleGuardar}
+              disabled={saving}
+              className="btn-primary text-xs flex items-center gap-1.5 animate-pulse-once"
+            >
+              <Save size={13} />
+              {saving ? 'Guardando…' : 'Guardar cambios'}
+            </button>
+          )}
+          {savedOk && !isDirty && (
+            <span className="text-xs text-emerald-400 flex items-center gap-1">
+              <CheckCircle2 size={13} /> Guardado
+            </span>
+          )}
           <button onClick={handleAbrirArchivo} disabled={isLoading} className="btn-ghost text-xs flex items-center gap-1.5">
             <FolderOpen size={14} /> {t('datos.abrirArchivo')}
           </button>
