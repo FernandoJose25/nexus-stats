@@ -1,0 +1,38 @@
+# Dependencias
+node_modules/
+
+# Builds
+dist/
+dist-electron/
+
+# Python
+python/__pycache__/
+python/**/__pycache__/
+python/*.pyc
+python/.pytest_cache/
+python/dist/
+python/build_tmp/
+
+# Electron builder
+build/
+*.exe
+*.dmg
+*.AppImage
+
+# Entorno local
+.env
+.env.local
+*.local
+
+# Logs
+*.log
+npm-debug.log*
+
+# Editor
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?

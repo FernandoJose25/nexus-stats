@@ -1,0 +1,44 @@
+appId: com.nexusstats.app
+productName: Nexus Stats
+copyright: Copyright © 2024 Nexus Stats
+
+directories:
+  output: dist-electron
+  buildResources: build
+
+files:
+  - dist/**/*
+  - electron/**/*
+  - node_modules/**/*
+  - "!node_modules/.cache"
+  - "!**/*.{iml,hprof,orig,pyc,pyo,rbc,swp,csproj,sln,xproj}"
+
+extraResources:
+  - from: python/dist/nexus_engine
+    to: nexus_engine
+    filter:
+      - "**/*"
+
+win:
+  icon: build/icon.ico
+  target:
+    - target: nsis
+      arch:
+        - x64
+
+nsis:
+  oneClick: false
+  perMachine: false
+  allowToChangeInstallationDirectory: true
+  deleteAppDataOnUninstall: false
+  installerIcon: build/icon.ico
+  installerHeaderIcon: build/icon.ico
+  createDesktopShortcut: true
+  createStartMenuShortcut: true
+  shortcutName: Nexus Stats
+  include: build/installer.nsh
+
+publish:
+  provider: github
+  owner: FernandoJose25
+  repo: nexus-stats

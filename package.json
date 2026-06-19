@@ -1,0 +1,48 @@
+{
+  "name": "nexus-stats",
+  "version": "0.2.0",
+  "description": "Herramienta de análisis estadístico moderna para investigadores hispanohablantes",
+  "main": "electron/main.js",
+  "author": {
+    "name": "Nexus Stats"
+  },
+  "license": "MIT",
+  "scripts": {
+    "dev": "concurrently --names \"PYTHON,VITE,ELECTRON\" --prefix-colors \"cyan,yellow,magenta\" \"npm run dev:python\" \"npm run dev:vite\" \"npm run dev:electron\"",
+    "dev:python": "py -3.11 python/main.py",
+    "dev:vite": "vite",
+    "dev:electron": "node scripts/launch-electron.js",
+    "build": "vite build",
+    "build:electron": "npm run build && electron-builder",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "axios": "^1.7.2",
+    "electron-store": "^8.2.0",
+    "electron-updater": "^6.8.9",
+    "lucide-react": "^1.17.0",
+    "plotly.js-dist-min": "^2.32.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-plotly.js": "^2.6.0",
+    "react-router-dom": "^6.23.1",
+    "zustand": "^4.5.2"
+  },
+  "devDependencies": {
+    "@types/react": "^18.3.3",
+    "@types/react-dom": "^18.3.0",
+    "@vitejs/plugin-react": "^4.3.0",
+    "autoprefixer": "^10.4.19",
+    "concurrently": "^8.2.2",
+    "electron": "^31.0.2",
+    "electron-builder": "^24.13.3",
+    "postcss": "^8.4.38",
+    "tailwindcss": "^3.4.4",
+    "vite": "^5.2.13",
+    "vite-plugin-electron": "^0.28.6",
+    "wait-on": "^7.2.0"
+  },
+  "build": {
+    "extends": "./electron-builder.yml"
+  }
+}
