@@ -10,7 +10,7 @@
 
 App de escritorio gratuita para hacer análisis estadístico **en español**, como alternativa moderna a IBM SPSS. Está pensada para tesistas e investigadores hispanohablantes. **[Descargar instalador para Windows](https://github.com/FernandoJose25/nexus-stats/releases/latest)**.
 
-> **English summary:** Free desktop statistics package (SPSS alternative) for Spanish-speaking researchers. Electron + React UI talking to a local Python FastAPI engine (pandas, SciPy, statsmodels, pingouin, scikit-learn) with 30+ analysis modules: descriptives, hypothesis tests, linear/logistic/Poisson regression, ANOVA/MANOVA/GLM, factor analysis, clustering, decision trees, ARIMA, survival, reliability, mediation and power analysis. APA-style exports, AI-assisted interpretation (Groq), packaged with PyInstaller + electron-builder and auto-updating from GitHub Releases. 127 pytest tests cover every router.
+> **English summary:** Free desktop statistics package (SPSS alternative) for Spanish-speaking researchers. Electron + React UI talking to a local Python FastAPI engine (pandas, SciPy, statsmodels, pingouin, scikit-learn) with 30+ analysis modules: descriptives, hypothesis tests, linear/logistic/Poisson regression, ANOVA/MANOVA/GLM, factor analysis, clustering, decision trees, ARIMA, survival, reliability, mediation and power analysis. APA 7 Word and PDF exports, AI-assisted interpretation (Groq), packaged with PyInstaller + electron-builder and auto-updating from GitHub Releases. 127 pytest tests cover every router.
 
 ![Regresión lineal con diagnóstico](docs/screenshots/regresion.png)
 
@@ -37,7 +37,7 @@ Proyecto personal hecho por mí de punta a punta: arquitectura Electron + motor 
   - análisis de potencia y tamaño de muestra.
 - **Gráficos interactivos** (Plotly): barras, histograma, dispersión, boxplot, violín, Q-Q, P-P y matriz de dispersión.
 - **Interpretación con IA** de los resultados en lenguaje simple (Groq).
-- **Exportar** a PDF con formato **APA**.
+- **Exportar** informes a Word con formato **APA 7** y a PDF.
 - **Instalador para Windows** con auto-actualización desde GitHub Releases.
 
 ![Editor de datos](docs/screenshots/datos.png)
