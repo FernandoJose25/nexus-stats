@@ -1,153 +1,82 @@
-# Nexus Stats
+<p align="center"><img src="docs/logo.png" width="96" alt="Nexus Stats" /></p>
 
-Herramienta de análisis estadístico de escritorio gratuita para investigadores hispanohablantes.
-Alternativa moderna a IBM SPSS Statistics.
+# Nexus Stats — Análisis estadístico para investigadores
+
+[![CI](https://github.com/FernandoJose25/nexus-stats/actions/workflows/ci.yml/badge.svg)](https://github.com/FernandoJose25/nexus-stats/actions/workflows/ci.yml)
+![Electron](https://img.shields.io/badge/Electron-31-47848F?logo=electron&logoColor=white)
+![React](https://img.shields.io/badge/React-18-61DAFB?logo=react&logoColor=black)
+![Python](https://img.shields.io/badge/Python-3.11%20%2B%20FastAPI-3776AB?logo=python&logoColor=white)
+![Tests](https://img.shields.io/badge/pytest-127%20passing-brightgreen?logo=pytest)
+
+App de escritorio gratuita para hacer análisis estadístico **en español**, como alternativa moderna a IBM SPSS. Está pensada para tesistas e investigadores hispanohablantes. **[Descargar instalador para Windows](https://github.com/FernandoJose25/nexus-stats/releases/latest)**.
+
+> **English summary:** Free desktop statistics package (SPSS alternative) for Spanish-speaking researchers. Electron + React UI talking to a local Python FastAPI engine (pandas, SciPy, statsmodels, pingouin, scikit-learn) with 30+ analysis modules: descriptives, hypothesis tests, linear/logistic/Poisson regression, ANOVA/MANOVA/GLM, factor analysis, clustering, decision trees, ARIMA, survival, reliability, mediation and power analysis. APA-style exports, AI-assisted interpretation (Groq), packaged with PyInstaller + electron-builder and auto-updating from GitHub Releases. 127 pytest tests cover every router.
+
+![Regresión lineal con diagnóstico](docs/screenshots/regresion.png)
+
+## Mi rol
+
+Proyecto personal hecho por mí de punta a punta: arquitectura Electron + motor Python, los más de 30 módulos estadísticos, la interfaz, los tests, el empaquetado y la distribución con auto-actualización.
+
+## Qué hace
+
+- **Editor de datos** tipo hoja de cálculo con vista de variables. Abre CSV, Excel, SPSS (`.sav`), SAS y Stata.
+- **Transformar** variables y **sintaxis** para repetir análisis.
+- **Análisis disponibles:**
+  - descriptivos y frecuencias;
+  - tablas cruzadas y chi-cuadrado;
+  - pruebas de hipótesis paramétricas y no paramétricas;
+  - correlaciones;
+  - regresión lineal (OLS con VIF, distancia de Cook y gráficos de diagnóstico), por pasos, ponderada, no lineal, logística, multinomial, ordinal y Poisson;
+  - ANOVA, ANCOVA, MANOVA y GLM;
+  - análisis factorial, fiabilidad (alfa de Cronbach, kappa) y psicometría;
+  - clustering (k-means y jerárquico), análisis discriminante, árboles de decisión y escalamiento multidimensional;
+  - series temporales y ARIMA;
+  - supervivencia;
+  - mediación;
+  - análisis de potencia y tamaño de muestra.
+- **Gráficos interactivos** (Plotly): barras, histograma, dispersión, boxplot, violín, Q-Q, P-P y matriz de dispersión.
+- **Interpretación con IA** de los resultados en lenguaje simple (Groq).
+- **Exportar** a PDF con formato **APA**.
+- **Instalador para Windows** con auto-actualización desde GitHub Releases.
+
+![Editor de datos](docs/screenshots/datos.png)
 
 ## Stack
 
-| Capa | Tecnología |
-|------|-----------|
-| Shell | Electron 31 |
-| UI | React 18 + Tailwind CSS v3 |
-| Gráficos | Plotly.js |
-| Motor estadístico | Python 3.11 + FastAPI (localhost:5174) |
-| Estado | Zustand |
-| IA | Groq API — llama-3.3-70b-versatile |
-| Empaquetado | Electron Builder → NSIS .exe |
+| Capa | Tecnologías |
+|---|---|
+| Escritorio | Electron 31 (proceso principal + preload con IPC seguro), electron-builder (NSIS), electron-updater |
+| UI | React 18, React Router, Zustand, Tailwind CSS, Plotly.js, i18n español/inglés |
+| Motor estadístico | Python 3.11, FastAPI (servidor local), pandas, NumPy, SciPy, statsmodels, pingouin, scikit-learn, DuckDB, ReportLab |
+| Empaquetado del motor | PyInstaller |
+| Calidad | pytest (127 tests sobre todos los routers), GitHub Actions |
 
-## Setup de desarrollo
+## Arquitectura
 
-### Requisitos previos
+```
+electron/          Ventana, ciclo de vida, diálogos de archivo, auto-actualización e IPC
+src/               UI en React: una página por módulo, stores de Zustand, cliente HTTP del motor
+python/main.py     Servidor FastAPI local que Electron arranca como proceso hijo
+python/routers/    Un router por módulo estadístico (34 routers, ~10 000 líneas)
+python/services/   data_manager (dataset en memoria) y stats_engine
+python/tests/      Tests de todos los routers con FastAPI TestClient
+```
 
-- Node.js 20+
-- Python 3.11+
+**¿Por qué un servidor FastAPI local?** Separa la UI de la implementación estadística: el renderer de Electron no puede importar Python directamente, y un servidor HTTP local es la forma más simple, testeable y fácil de depurar de unirlos. Además, cada router se prueba aislado con `TestClient`.
 
-### 1. Instalar dependencias de Node
+## Correr el proyecto
+
+Requisitos: Node 20+ y Python 3.11.
 
 ```bash
 npm install
+pip install -r python/requirements.txt -r python/requirements-dev.txt
+
+npm run dev                      # motor Python + Vite + Electron
+cd python && python -m pytest    # tests del motor
+npm run build                    # build de la UI
 ```
 
-### 2. Instalar dependencias de Python
-
-```bash
-cd python
-pip install -r requirements.txt
-```
-
-> En Windows se recomienda usar un virtualenv:
-> ```
-> python -m venv .venv
-> .venv\Scripts\activate
-> pip install -r requirements.txt
-> ```
-
-### 3. Arrancar en modo desarrollo
-
-Abre dos terminales:
-
-**Terminal 1 — Motor Python:**
-```bash
-cd python
-python main.py
-```
-
-**Terminal 2 — Electron + Vite:**
-```bash
-npm run dev
-```
-
-O en una sola terminal con concurrently:
-```bash
-npm run dev
-```
-> `npm run dev` lanza Vite en :5173 y espera a que esté listo antes de arrancar Electron.
-> El motor Python debe estar corriendo separadamente en desarrollo.
-
-### 4. Verificar que el motor está funcionando
-
-```
-GET http://localhost:5174/health
-→ {"status": "ok", "version": "0.1.0"}
-```
-
-Documentación interactiva de la API (solo en dev):
-```
-http://localhost:5174/docs
-```
-
-## Empaquetar para producción (.exe)
-
-### 1. Compilar motor Python con PyInstaller
-
-```bash
-cd python
-pyinstaller --onedir --name nexus_engine main.py
-# Genera: python/dist/nexus_engine/
-```
-
-### 2. Compilar React
-
-```bash
-npm run build
-```
-
-### 3. Generar instalador .exe
-
-```bash
-npm run build:electron
-# Genera: dist-electron/Nexus Stats Setup x.y.z.exe
-```
-
-## Estructura de carpetas
-
-```
-nexus-stats/
-├── electron/           # Proceso principal Electron
-│   ├── main.js         # Ventana + ciclo de vida + IPC
-│   └── preload.js      # Bridge seguro renderer↔main
-├── src/                # React frontend
-│   ├── App.jsx         # Router + layout principal
-│   ├── i18n/           # Traducciones (es/en) + hook useT
-│   ├── pages/          # Una página por módulo
-│   ├── store/          # Zustand: dataStore + analysisStore
-│   └── services/       # pythonApi.js + groqService.js
-├── python/
-│   ├── main.py         # Entry point FastAPI
-│   ├── routers/        # Un router por módulo estadístico
-│   └── services/       # stats_engine.py + data_manager.py
-└── build/              # Assets para el instalador
-```
-
-## Decisiones de arquitectura
-
-**¿Por qué FastAPI en lugar de llamadas directas a Python?**
-Desacopla el frontend de la implementación estadística. El renderer de Electron no puede
-importar módulos de Python directamente; un servidor HTTP local en localhost es el patrón
-más simple, testeable y fácil de depurar. Además permite usar las mismas rutas desde
-cualquier cliente durante el desarrollo.
-
-**¿Por qué Zustand en lugar de Context API?**
-El estado del dataset (miles de filas) y el historial de análisis se leen y escriben desde
-múltiples componentes no relacionados. Zustand evita re-renders innecesarios por sus
-selectores atómicos y tiene una API mínima sin boilerplate.
-
-**¿Por qué DuckDB dentro de data_manager?**
-Permite ejecutar SQL analítico sobre DataFrames pandas sin mover los datos a disco.
-Útil para filtros, agregaciones y transformaciones que vendrán en fases posteriores.
-En la Fase 1 apenas se usa, pero el setup ya está listo.
-
-**¿Por qué electron-store no se usa en la Fase 1?**
-La API key de Groq se guarda en `localStorage` del renderer por simplicidad en el MVP.
-En la Fase 2 se migrará a `electron-store` con cifrado para mejorar la seguridad.
-
-**¿Por qué puerto 5174 para FastAPI?**
-El 5173 ya lo usa Vite. El 5174 es el siguiente disponible y tiene baja probabilidad
-de conflicto con otros servicios del sistema.
-
-## Roadmap
-
-- **Fase 1 (actual)**: Editor de datos, descriptivos, gráficos, IA, exportar
-- **Fase 2**: Regresión, ANOVA, t-tests, chi-cuadrado, correlaciones
-- **Fase 3**: Factorial, clustering, regresión múltiple, imputación
-- **Fase 4**: Árboles de decisión, series temporales, scripting del usuario
+Para generar el instalador: `cd python && pyinstaller nexus_engine.spec`, luego `npm run build:electron`.
+Hay datos de ejemplo en `examples/datos_prueba.csv`.
